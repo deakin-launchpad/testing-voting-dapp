@@ -2,59 +2,19 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Container, Box, Typography, Grid, Button, TextField } from '@mui/material';
 import algosdk, { waitForConfirmation, encodeUint64 } from 'algosdk';
 
-// connect to the algorand node
-const client = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', 443);
+// TODO1: Connect to the algorand node
 
-// The app ID on testnet
-const appIndex = 103723509;
+// TODO1: Provide the app ID on testnet
 
 const SetNumber = (props) => {
   const [currentNumber, setCurrentNumber] = useState(null);
 
-  const getCurrentNumber = useCallback(async () => {
-    try {
-      const app = await client.getApplicationByID(appIndex).do();
-      if (!!app.params['global-state'][0].value.uint) {
-        setCurrentNumber(app.params['global-state'][0].value.uint);
-      } else {
-        setCurrentNumber(0);
-      }
-    } catch (e) {
-      console.error('There was an error connecting to the algorand node: ', e)
-    }
-  }, []);
+  // TODO2: Use the Algorand client to get the current number from the smart contract
 
-  useEffect(() => {
-    getCurrentNumber();
-  }, [getCurrentNumber]);
 
+  // TODO3: Use the Algorand client to set the current number to the new number
   const setNumber = async () => {
-    try {
-      const numberToSet = parseInt(document.getElementById('number-to-set').value);
 
-      const suggestedParams = await client.getTransactionParams().do();
-      const appArgs = [new Uint8Array(Buffer.from("set_number")), encodeUint64(numberToSet)];
-
-      const transaction = algosdk.makeApplicationNoOpTxn(
-        props.account,
-        suggestedParams,
-        appIndex,
-        appArgs
-      );
-
-      const transactionDetails = [{ txn: transaction, signers: [props.account] }];
-
-      const signedTx = await props.wallet.signTransaction([transactionDetails]);
-
-      const { txId } = await client.sendRawTransaction(signedTx).do();
-      const result = await waitForConfirmation(client, txId, 2);
-      alert(`Result: ${JSON.stringify(result)}`);
-
-      getCurrentNumber();
-
-    } catch (e) {
-      console.error(`There was an error calling the counter app: ${e}`);
-    }
   }
 
   return (
@@ -82,15 +42,14 @@ const SetNumber = (props) => {
               Current number
             </Typography>
             <Typography component="h6" variant='h6' sx={{ fontWeight: "bold", textAlign: 'center', color: "#16BCBC" }}>
-              {currentNumber ?? "Loading..."}
+              {currentNumber ?? "NaN"}
             </Typography>
           </Grid>
         </Grid>
 
         <TextField
           id="number-to-set"
-          label="Input a number"
-          defaultValue="1"
+          label="Enter a number"
           helperText="Your number will be sent to the smart contract"
         />
 
