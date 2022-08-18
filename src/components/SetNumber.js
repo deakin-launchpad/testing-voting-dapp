@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Container, Box, Typography, Grid, Button, TextField } from '@mui/material';
+import { Container, Box, Typography, Grid, Button, TextField, CircularProgress } from '@mui/material';
 import algosdk, { waitForConfirmation, encodeUint64 } from 'algosdk';
 
 // TODO1: Connect to the algorand node
@@ -8,6 +8,7 @@ import algosdk, { waitForConfirmation, encodeUint64 } from 'algosdk';
 
 const SetNumber = (props) => {
   const [currentNumber, setCurrentNumber] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // TODO2: Use the Algorand client to get the current number from the smart contract
 
@@ -66,7 +67,8 @@ const SetNumber = (props) => {
         }}
           onClick={() => setNumber()}
         >
-          Submit
+          {loading ? <CircularProgress disableShrink sx={{ color: "white" }} />
+            : "Set new number"}
         </Button>
 
       </Container>
