@@ -2,57 +2,80 @@ import React, { useEffect, useState } from 'react';
 import { Container, Box, Card, CardMedia, Typography, Grid, Button } from '@mui/material';
 import LogoProfile from '../assets/logo_profile.png';
 import { PeraWalletConnect } from '@perawallet/connect';
+import MyAlgoConnect from "@randlabs/myalgo-connect";
 import algosdk, { } from 'algosdk';
-import SetNumber from './SetNumber';
+import Vote from './voting';
 
+const myAlgoWallet = new MyAlgoConnect();
+const myAlgoWalletSettings = {
+  shouldSelectOneAccount: true,
+  openManager: false,
+};
 // Initialize the PeraWalletConnect instance
-const peraWallet = new PeraWalletConnect();
+// const peraWallet = new PeraWalletConnect();
 
 // Initialize an Algorand client
 const client = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', 443);
 
-const MINIMUM_ALGO_AMOUNT = 100000;
+// const MINIMUM_ALGO_AMOUNT = 100000;
 
 const WalletConnect = (props) => {
-  const [algoAccount, setAlgoAccount] = useState(null);
-  const [accountInfo, setAccountInfo] = useState(null);
-  const isConnectedToPeraWallet = !!algoAccount;
+  // const [algoAccount, setAlgoAccount] = useState(null);
+  const [accountAddress, setAccountAddress] = useState(null);
+  // const [accountInfo, setAccountInfo] = useState(null);
+  const isConnectedToWallet = !!accountAddress;
 
-  useEffect(() => {
-    // Connect to Pera Wallet on load
-    // This will help if user previously connected to Pera Wallet
-    peraWallet.reconnectSession().then((accounts) => {
-      // Disconnection event listener
-      peraWallet.connector?.on('disconnect', handleDisconnectWalletClick);
+  // useEffect(() => {
+  //   myAlgoWallet
+  //     .connect(myAlgoWalletSettings)
+  //     .then((account) => {
+  //       setAccountAddress(account[0].address);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  //   // Connect to Pera Wallet on load
+  //   // This will help if user previously connected to Pera Wallet
+  //   peraWallet.reconnectSession().then((accounts) => {
+  //     // Disconnection event listener
+  //     peraWallet.connector?.on('disconnect', handleDisconnectWalletClick);
 
-      if (accounts.length > 0) {
-        setAlgoAccount(accounts[0]);
-      }
-    })
-  }, []);
+  //     if (accounts.length > 0) {
+  //       setAlgoAccount(accounts[0]);
+  //     }
+  //   })
+  // }, []);
 
-  useEffect(() => {
-    if (algoAccount) {
-      client.accountInformation(algoAccount).do().then((accountInfo) => {
-        setAccountInfo(accountInfo);
-      }).catch((err) => {
-        console.log(err);
-      });
-    }
-  }, [algoAccount]);
+  // useEffect(() => {
+  //   if (algoAccount) {
+  //     client.accountInformation(algoAccount).do().then((accountInfo) => {
+  //       setAccountInfo(accountInfo);
+  //     }).catch((err) => {
+  //       console.log(err);
+  //     });
+  //   }
+  // }, [algoAccount]);
 
   const handleConnectWalletClick = () => {
-    peraWallet.connect().then((newAccounts) => {
-      peraWallet.connector?.on('disconnect', handleDisconnectWalletClick);
-      setAlgoAccount(newAccounts[0]);
-    });
+    myAlgoWallet
+      .connect(myAlgoWalletSettings)
+      .then((account) => {
+        setAccountAddress(account[0].address);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    // peraWallet.connect().then((newAccounts) => {
+    //   peraWallet.connector?.on('disconnect', handleDisconnectWalletClick);
+    //   setAlgoAccount(newAccounts[0]);
+    // });
   }
 
-  const handleDisconnectWalletClick = () => {
-    peraWallet.disconnect();
-    setAlgoAccount(null);
-    setAccountInfo(null);
-  }
+  // const handleDisconnectWalletClick = () => {
+  //   peraWallet.disconnect();
+  //   setAlgoAccount(null);
+  //   setAccountInfo(null);
+  // }
 
   return (
     <Box sx={{
@@ -89,14 +112,14 @@ const WalletConnect = (props) => {
         <Grid container direction="row" alignItems='center' justifyContent='center'>
           <Grid item>
             <Typography component="h6" variant='h6' sx={{ fontWeight: "bold", textAlign: 'center' }}>
-              {accountInfo?.address ?? "No account connected"}
+              {accountAddress?? "No account connected"}
             </Typography>
           </Grid>
         </Grid>
 
-        <Typography component="p" variant='body1' sx={{ fontWeight: "bold", mt: 2, mb: 2 }}>
+        {/* <Typography component="p" variant='body1' sx={{ fontWeight: "bold", mt: 2, mb: 2 }}>
           {accountInfo?.amount ? accountInfo?.amount / 1000000 : "0"} ALGOs
-        </Typography>
+        </Typography> */}
 
         <Button sx={{
           backgroundColor: "#00554E",
@@ -109,13 +132,15 @@ const WalletConnect = (props) => {
             bgcolor: 'black',
           },
         }}
-          onClick={isConnectedToPeraWallet ? handleDisconnectWalletClick : handleConnectWalletClick}
+          // onClick={isConnectedToPeraWallet ? handleDisconnectWalletClick : handleConnectWalletClick}
+          onClick={handleConnectWalletClick}
         >
-          {isConnectedToPeraWallet ? "Disconnect" : "Connect to Pera Wallet"}
+          {"Connect to Pera Wallet"}
+          {/* {isConnectedToPeraWallet ? "Disconnect" : "Connect to Pera Wallet"} */}
         </Button>
 
-        {isConnectedToPeraWallet && accountInfo?.amount > MINIMUM_ALGO_AMOUNT
-          ? <SetNumber account={algoAccount} wallet={peraWallet} />
+        {isConnectedToWallet
+          ? <Vote myAlgo={myAlgoWallet} address={accountAddress} />
           : null}
 
       </Container>
