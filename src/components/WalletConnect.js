@@ -135,7 +135,7 @@ const WalletConnect = (props) => {
           // onClick={isConnectedToPeraWallet ? handleDisconnectWalletClick : handleConnectWalletClick}
           onClick={handleConnectWalletClick}
         >
-          {"Connect to Pera Wallet"}
+          {"Connect to MyAlgo Wallet"}
           {/* {isConnectedToPeraWallet ? "Disconnect" : "Connect to Pera Wallet"} */}
         </Button>
 

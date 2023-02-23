@@ -29,7 +29,7 @@ const DecodeBase64 = (base64) => {
 const constantParams = ["choose", "governor_token", "min_token_to_vote", "proposal", "result_box", "total_number_of_options", "voting_end"];
 let options = [];
 let governorId;
-let optIn = false;
+let optIn;
 const Vote = (props) => {
   const [governorToken, setGovernorToken] = useState(null);
   const [currentProposal, setCurrentProposal] = useState(null);
@@ -92,7 +92,7 @@ const Vote = (props) => {
         options = currentOptions;
         console.log(options);
         console.log(governorToken);
-        getCurrentVoting();
+        await getCurrentVoting();
         setLoading(false);
       } else {
         setLoading(false);
@@ -129,6 +129,7 @@ const Vote = (props) => {
       const accountInfo = await client.accountInformation(props.address).do();
       const optedInApp = accountInfo["apps-local-state"];
       console.log(optedInApp.length);
+      optIn = false;
       for (const property in optedInApp){
         if (governorId == optedInApp[property].id){
           optIn = true;
@@ -296,7 +297,7 @@ const Vote = (props) => {
               bgcolor: "black",
             },
           }}
-          onClick={() => getCurrentOptions()}
+          onClick={async() => await getCurrentOptions()}
         >
           {loading ? (
             <CircularProgress disableShrink sx={{ color: "white" }} />
